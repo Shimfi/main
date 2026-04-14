@@ -13,6 +13,7 @@ android.api = 33
 android.minapi = 24
 android.archs = arm64-v8a
 android.accept_sdk_license = True
+android.build_tools_version = 33.0.0
 p4a.branch = develop
 
 [buildozer]
