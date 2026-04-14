@@ -1,5 +1,8 @@
-name: Build APK Manual
-on: [push, workflow_dispatch]
+name: Build APK Stable
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -18,18 +21,16 @@ jobs:
           sudo apt update
           sudo apt install -y openjdk-17-jdk unzip zlib1g-dev
 
-      - name: Install Python dependencies
+      - name: Install pinned Python tools
         run: |
           python -m pip install --upgrade pip
-          pip install "setuptools<70.0.0" wheel cython
+          pip install "setuptools==69.5.1" wheel "cython<3.0"
           pip install buildozer
 
       - name: Build APK
-        env:
-          SETUPTOOLS_USE_DISTUTILS: stdlib
         run: buildozer android debug
 
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: ultra-music-player-apk
