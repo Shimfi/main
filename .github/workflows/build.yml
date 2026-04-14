@@ -1,4 +1,4 @@
-name: Build APK Final
+name: Build APK (Legacy Fix)
 on:
   push:
     branches: [ main ]
@@ -6,26 +6,27 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.8
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.8'
 
       - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install -y openjdk-17-jdk unzip zlib1g-dev
+          sudo apt install -y openjdk-8-jdk unzip zlib1g-dev
 
-      - name: Install Python dependencies with pinned versions
+      - name: Install legacy Python tools
         run: |
           python -m pip install --upgrade pip
-          pip install "setuptools==69.5.1" "wheel" "cython==0.29.36"
-          pip install buildozer
+          pip install "setuptools<60.0.0" "cython<3.0.0" wheel
+          pip install https://github.com/kivy/buildozer/archive/refs/heads/master.zip
+          pip install https://github.com/kivy/python-for-android/archive/refs/heads/develop.zip
 
       - name: Build APK
         run: buildozer android debug
