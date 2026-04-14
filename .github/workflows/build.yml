@@ -1,34 +1,32 @@
-name: Build APK
-on: [push, workflow_dispatch]
+name: Build APK with Buildozer Action
+
+# Триггеры для запуска сборки: при пуше в ветку 'main' или вручную
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-22.04
+  build-android:
+    name: Build for Android
+    runs-on: ubuntu-latest
     steps:
+      # 1. Клонирование кода из репозитория
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      # 2. Сборка APK с помощью готового действия
+      - name: Build with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
         with:
-          python-version: '3.11'
+          command: buildozer android debug
+          workdir: . # Указывает, что buildozer.spec находится в корне проекта
+          buildozer_version: stable # Использует последнюю стабильную версию Buildozer
 
-      - name: Install system dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y openjdk-17-jdk unzip zlib1g-dev
-
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install "setuptools<70.0.0" wheel cython
-          pip install buildozer
-
-      - name: Build APK
-        run: buildozer android debug
-
-      - name: Upload APK
+      # 3. Загрузка собранного APK-файла как артефакта
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: ultra-music-player-apk
-          path: bin/*.apk
+          path: ${{ steps.buildozer.outputs.filename }}
